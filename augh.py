@@ -55,6 +55,10 @@ class Augh():
 	
 	# Load data from cache
 	def CacheLoad(self, character):
+		# Skip cache if we have to
+		if self.options.ignorecache is True:
+			return {}
+		
 		filename = '%s_%s.pickle' % (self.options.realm, character)
 		filepath = os.path.join('cache', filename)
 		if os.path.exists(filepath):
@@ -272,7 +276,8 @@ if __name__ == '__main__':
 	parser.add_option('', '--charfile', dest='charfile', help='filename to read character names from')
 	parser.add_option('-f', '--file', dest='filename', help='file to output generated HTML to', metavar='FILE')
 	parser.add_option('-t', '--title', dest='title', help='title of HTML page')
-	parser.set_defaults(metas='Glory of the Raider,Heroic: Glory of the Raider')
+	parser.add_option('-i', '--ignore-cache', action='store_true', dest='ignorecache', help='ignore cached data')
+	parser.set_defaults(metas='Glory of the Ulduar Raider,Heroic: Glory of the Ulduar Raider', ignorecache=False)
 	(options, args) = parser.parse_args()
 	
 	if options.realm is None:
