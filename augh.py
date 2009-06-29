@@ -154,7 +154,6 @@ class Augh():
 		for character in root.findall('guildInfo/guild/members/character'):
 			if character.get('level') == CHAR_LEVEL:
 				chars.append(character.get('name').encode('latin-1'))
-		print chars
 		return chars
 	
 	# Fetch some XML comparison data from the Armory
@@ -266,6 +265,10 @@ class Augh():
 			# Player rows
 			n = 1
 			for name, p_data in players:
+				# Skip people with no meta progress
+				if not [ok for ok in p_data[meta.name] if ok is not False]:
+					continue
+				
 				n = (n + 1) % 2
 				outfile.write('<tr class="row%s"><td class="name">%s</td>' % (n, name))
 				
@@ -308,6 +311,7 @@ def main():
 	parser.add_option('-f', '--file', dest='filename', help='file to output generated HTML to', metavar='FILE')
 	parser.add_option('-t', '--title', dest='title', help='title of HTML page')
 	parser.add_option('-i', '--ignore-cache', action='store_true', dest='ignorecache', help='ignore cached data')
+	parser.add_option('-n', '--no-slackers', action='store_true', dest='noslackers', help="don't display characters with no meta progress")
 	
 	group = OptionGroup(parser, 'Character Options', "Pick one of these or I'll cut you")
 	group.add_option('-g', '--guild', dest='guild', help='guild to load character names from')
@@ -315,7 +319,11 @@ def main():
 	group.add_option('-c', '--chars', dest='chars', help='comma seperated list of character names')
 	parser.add_option_group(group)
 	
-	parser.set_defaults(metas='Glory of the Ulduar Raider,Heroic: Glory of the Ulduar Raider', ignorecache=False)
+	parser.set_defaults(
+		metas='Glory of the Ulduar Raider,Heroic: Glory of the Ulduar Raider',
+		ignorecache=False,
+		noslackers=False,
+	)
 	
 	(options, args) = parser.parse_args()
 	
