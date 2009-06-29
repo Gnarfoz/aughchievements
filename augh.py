@@ -153,7 +153,13 @@ class Augh():
 		chars = []
 		for character in root.findall('guildInfo/guild/members/character'):
 			if character.get('level') == CHAR_LEVEL:
+				if self.options.maxrank > 0:
+					rank = int(character.get('rank'))
+					if rank > self.options.maxrank:
+						continue
+				
 				chars.append(character.get('name').encode('latin-1'))
+		
 		return chars
 	
 	# Fetch some XML comparison data from the Armory
@@ -306,23 +312,25 @@ class Augh():
 def main():
 	# Parse command line options
 	parser = OptionParser()
-	parser.add_option('-m', '--metas', dest='metas', help='comma seperated list of meta achievement names')
-	parser.add_option('-r', '--realm', dest='realm', help='realm characters come from')
-	parser.add_option('-f', '--file', dest='filename', help='file to output generated HTML to', metavar='FILE')
-	parser.add_option('-t', '--title', dest='title', help='title of HTML page')
+	parser.add_option('', '--metas', dest='metas', help='comma seperated list of meta achievement names')
+	parser.add_option('', '--realm', dest='realm', help='realm characters come from')
+	parser.add_option('', '--file', dest='filename', help='file to output generated HTML to', metavar='FILE')
+	parser.add_option('', '--title', dest='title', help='title of HTML page')
+	parser.add_option('', '--max-rank', type='int', dest='maxrank', help='maximum guild rank to include when using --guild', metavar='N')
 	parser.add_option('-i', '--ignore-cache', action='store_true', dest='ignorecache', help='ignore cached data')
 	parser.add_option('-n', '--no-slackers', action='store_true', dest='noslackers', help="don't display characters with no meta progress")
 	
 	group = OptionGroup(parser, 'Character Options', "Pick one of these or I'll cut you")
-	group.add_option('-g', '--guild', dest='guild', help='guild to load character names from')
+	group.add_option('', '--guild', dest='guild', help='guild to load character names from')
 	group.add_option('', '--charfile', dest='charfile', help='filename to read character names from')
-	group.add_option('-c', '--chars', dest='chars', help='comma seperated list of character names')
+	group.add_option('', '--chars', dest='chars', help='comma seperated list of character names')
 	parser.add_option_group(group)
 	
 	parser.set_defaults(
 		metas='Glory of the Ulduar Raider,Heroic: Glory of the Ulduar Raider',
 		ignorecache=False,
 		noslackers=False,
+		maxrank=0,
 	)
 	
 	(options, args) = parser.parse_args()
