@@ -12,15 +12,18 @@ import time
 import urllib
 import urllib2
 import xml.etree.ElementTree as ET
-from optparse import OptionParser
+from optparse import OptionParser, OptionGroup
 
 import achievement_data
 
 # ---------------------------------------------------------------------------
 
 BASE_URL = 'http://www.wowarmory.com/character-achievements.xml?r=%s&n=%s&c=168'
+GUILD_URL = 'http://www.wowarmory.com/guild-info.xml?r=%s&gn=%s'
 ICON_URL = 'http://www.wowarmory.com/wow-icons/_images/51x51/%s.jpg'
+
 CACHE_TIME = 8 * 60 * 60
+CHAR_LEVEL = '80'
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6'
 
 # ---------------------------------------------------------------------------
@@ -29,10 +32,17 @@ class Augh():
 	def __init__(self, options):
 		self.options = options
 		
-		if self.options.charfile:
+		# Characters from a guild list on the armory
+		if self.options.guild:
+			self.chars = self.FetchGuildPlayers()
+		
+		# Characters from a text file
+		elif self.options.charfile:
 			self.chars = []
 			for line in open(self.options.charfile):
 				self.chars.append(line.strip())
+		
+		# Characters from the command line
 		else:
 			self.chars = self.options.chars.split(',')
 		
@@ -42,6 +52,9 @@ class Augh():
 		self.CacheExpire()
 	
 	# -----------------------------------------------------------------------
+	# Slightly nasty workaround to get quoted UTF-8 URLs that the Armory expects
+	def ArmoryQuote(self, url):
+		return urllib.quote(unicode(url, 'latin1').encode('utf-8'))
 	
 	# Delete any outdated cache files
 	def CacheExpire(self):
@@ -75,6 +88,11 @@ class Augh():
 	# -----------------------------------------------------------------------
 	
 	def go(self):
+		# Blow up if there's no valid characters
+		if not self.chars:
+			print 'ERROR: no valid character names'
+			sys.exit(2)
+		
 		# Load any useful people from cache
 		fetchme = self.chars[:]
 		for char in self.chars:
@@ -125,15 +143,30 @@ class Augh():
 		self.OutputHTML()
 	
 	# -----------------------------------------------------------------------
+	# Fetch the guild player list from the Armory
+	def FetchGuildPlayers(self):
+		url = GUILD_URL % (self.ArmoryQuote(self.options.realm), self.ArmoryQuote(self.options.guild))
+		req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
+		xml = urllib2.urlopen(req).read()
+		root = ET.fromstring(xml)
+		
+		chars = []
+		for character in root.findall('guildInfo/guild/members/character'):
+			if character.get('level') == CHAR_LEVEL:
+				chars.append(character.get('name').encode('latin-1'))
+		print chars
+		return chars
+	
 	# Fetch some XML comparison data from the Armory
 	def FetchXML(self, characters):
-		realms = ','.join([self.options.realm] * len(characters))
+		qrealm = self.ArmoryQuote(self.options.realm)
+		realms = ','.join([qrealm] * len(characters))
 		# This is kind of a nasty way to get the right UTF encoding for names
 		# containing annoying upper ASCII characters
-		chars = []
-		for character in characters:
-			c = urllib.quote(unicode(character, 'latin1').encode('utf-8'))
-			chars.append(c)
+		chars = [self.ArmoryQuote(c) for c in characters]
+		#for character in characters:
+		#	c = urllib.quote(unicode(character, 'latin1').encode('utf-8'))
+		#	chars.append(c)
 		
 		url = BASE_URL % (realms, ','.join(chars))
 		
@@ -267,23 +300,34 @@ class Augh():
 
 # ---------------------------------------------------------------------------
 
-if __name__ == '__main__':
+def main():
 	# Parse command line options
 	parser = OptionParser()
 	parser.add_option('-m', '--metas', dest='metas', help='comma seperated list of meta achievement names')
 	parser.add_option('-r', '--realm', dest='realm', help='realm characters come from')
-	parser.add_option('-c', '--chars', dest='chars', help='comma seperated list of character names')
-	parser.add_option('', '--charfile', dest='charfile', help='filename to read character names from')
 	parser.add_option('-f', '--file', dest='filename', help='file to output generated HTML to', metavar='FILE')
 	parser.add_option('-t', '--title', dest='title', help='title of HTML page')
 	parser.add_option('-i', '--ignore-cache', action='store_true', dest='ignorecache', help='ignore cached data')
+	
+	group = OptionGroup(parser, 'Character Options', "Pick one of these or I'll cut you")
+	group.add_option('-g', '--guild', dest='guild', help='guild to load character names from')
+	group.add_option('', '--charfile', dest='charfile', help='filename to read character names from')
+	group.add_option('-c', '--chars', dest='chars', help='comma seperated list of character names')
+	parser.add_option_group(group)
+	
 	parser.set_defaults(metas='Glory of the Ulduar Raider,Heroic: Glory of the Ulduar Raider', ignorecache=False)
+	
 	(options, args) = parser.parse_args()
 	
+	# Basic sanity checking
 	if options.realm is None:
 		parser.error('--realm is required!')
-	if options.chars is None and options.charfile is None:
-		parser.error('--chars or --charfile is required!')
+	if options.guild is None and options.charfile is None and options.chars is None:
+		parser.error('--guild, --charfile or --chars is required!')
 	
+	# Go!
 	augh = Augh(options)
 	augh.go()
+
+if __name__ == '__main__':
+	main()
