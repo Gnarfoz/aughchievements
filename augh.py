@@ -22,9 +22,10 @@ BASE_URL = 'http://www.wowarmory.com/character-achievements.xml?r=%s&n=%s&c=168'
 GUILD_URL = 'http://www.wowarmory.com/guild-info.xml?r=%s&gn=%s'
 ICON_URL = 'http://www.wowarmory.com/wow-icons/_images/51x51/%s.jpg'
 
-CACHE_TIME = 8 * 60 * 60
 CHAR_LEVEL = '80'
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6'
+
+DEFAULT_EXPIRE = 8
 
 # ---------------------------------------------------------------------------
 
@@ -58,7 +59,7 @@ class Augh():
 	
 	# Delete any outdated cache files
 	def CacheExpire(self):
-		expire_time = time.time() - CACHE_TIME
+		expire_time = time.time() - (self.options.expiretime * 60 * 60)
 		for filename in os.listdir('cache'):
 			if not filename.endswith('.pickle'):
 				continue
@@ -316,6 +317,7 @@ def main():
 	parser.add_option('', '--realm', dest='realm', help='realm characters come from')
 	parser.add_option('', '--file', dest='filename', help='file to output generated HTML to', metavar='FILE')
 	parser.add_option('', '--title', dest='title', help='title of HTML page')
+	parser.add_option('', '--expire-time', dest='expiretime', help='expire cache after N hours', metavar='N')
 	parser.add_option('', '--max-rank', type='int', dest='maxrank', help='maximum guild rank to include when using --guild', metavar='N')
 	parser.add_option('-i', '--ignore-cache', action='store_true', dest='ignorecache', help='ignore cached data')
 	parser.add_option('-n', '--no-slackers', action='store_true', dest='noslackers', help="don't display characters with no meta progress")
@@ -330,6 +332,7 @@ def main():
 		metas='Glory of the Ulduar Raider,Heroic: Glory of the Ulduar Raider',
 		ignorecache=False,
 		noslackers=False,
+		expiretime=8,
 		maxrank=0,
 	)
 	
