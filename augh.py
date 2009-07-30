@@ -90,6 +90,9 @@ class Augh():
 	def go(self):
 		self.logger.debug('go() starting')
 		
+		# Fetch any missing icons
+		self.FetchIcons()
+		
 		# Characters from a guild list on the armory
 		if self.options.guild:
 			self.chars = self.FetchGuildPlayers()
@@ -100,11 +103,11 @@ class Augh():
 				self.chars.append(line.strip())
 		# Characters from the command line
 		else:
-			self.chars = self.options.chars.split(',')
+			self.chars = [c for c in self.options.chars.split(',') if c]
 		
 		# Blow up if there's no valid characters
-		if not self.chars:
-			print 'ERROR: no valid character names'
+		if self.chars == []:
+			self.logger.error('no valid character names!')
 			sys.exit(2)
 		
 		# Load any useful people from cache
@@ -116,56 +119,17 @@ class Augh():
 			self.data[char] = c_data
 		
 		# Fetch data for up to 4 characters at a time to save time
-		flen = len(fetchme)
-		for i in range(0, flen, 4):
+		for i in range(0, len(fetchme), 4):
 			chars = fetchme[i:i+4]
 			
-			xml = self.FetchXML(chars)
-			
-			# FetchXML error of some sort, force a cache load and try the next set
-			if xml is None:
-				self.logger.warning('FetchXML() returned None for %r, forcing cache load' % chars)
-				for char in chars:
-					c_data = self.CacheLoad(char, force=True)
-					if c_data:
-						self.data[char] = c_data
-					else:
-						for meta in self.metas:
-							self.data[char][meta.name] = meta.check_achievements({})
-						self.CacheSave(char)
-				continue
-			
-			# Find all of the nested categories
-			categories = ET.fromstring(xml).findall('category/category')
-			
-			for meta in self.metas:
-				p = {}
-				for char in chars:
-					p[char] = {}
-				
-				for achievement in categories[meta.section].findall('achievement'):
-					a_title = achievement.get('title')
-					
-					if len(chars) == 1:
-						p[chars[0]][a_title] = achievement.get('dateCompleted', None)
-					
-					else:
-						for j, complete in enumerate(achievement.findall('c')):
-							p[chars[j]][a_title] = complete.get('dateCompleted', None)
+			broken = self.ParseArmory(*chars)
+			if broken is True:
+				self.logger.warning('ParseArmory() failed for %r, going single' % chars)
 				
 				for char in chars:
-					self.data[char][meta.name] = meta.check_achievements(p[char])
-			
-			# Cache data for these characters
-			for char in chars:
-				self.CacheSave(char)
-			
-			# Sleep for a little while
-			if i + 4 < flen:
-				time.sleep(random.randint(3, 6))
-		
-		# Fetch any missing icons
-		self.FetchIcons()
+					broken = self.ParseArmory(char)
+					if broken is True:
+						self.logger.warning('giving up on player %s')
 		
 		# Spit out the HTML
 		self.OutputHTML()
@@ -173,6 +137,23 @@ class Augh():
 		self.logger.debug('go() finished')
 	
 	# -----------------------------------------------------------------------
+	# Fetch any missing achievement icons
+	def FetchIcons(self):
+		for meta in self.metas:
+			for a_id, a_img in meta.achievements.values():
+				if a_img == '-':
+					continue
+				
+				filename = '%s.jpg' % (a_img)
+				filepath = os.path.join('files', filename)
+				if os.path.exists(filepath):
+					continue
+				
+				url = ICON_URL % (a_img)
+				req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
+				data = urllib2.urlopen(req).read()
+				open(filepath, 'wb').write(data)
+	
 	# Fetch the guild player list from the Armory
 	def FetchGuildPlayers(self):
 		url = GUILD_URL % (self.ArmoryQuote(self.options.realm), self.ArmoryQuote(self.options.guild))
@@ -206,38 +187,85 @@ class Augh():
 		qrealm = self.ArmoryQuote(self.options.realm)
 		realms = ','.join([qrealm] * len(characters))
 		chars = [self.ArmoryQuote(c) for c in characters]
+		clist = ','.join(chars)
 		
-		url = BASE_URL % (realms, ','.join(chars))
+		url = BASE_URL % (realms, clist)
 		
 		start = time.time()
 		req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
+		
 		try:
-			xml = urllib2.urlopen(req).read()
+			u = urllib2.urlopen(req)
+		
 		except urllib2.HTTPError, e:
-			self.logger.warning('FetchXML() %r HTTP %s!' % (url, e.code))
+			self.logger.warning('FetchXML() %r/%r HTTP %s!' % (self.options.realm, clist, e.code))
 			return None
+		
 		else:
-			#open('temp.xml', 'w').write(xml)
-			#xml = open('temp.xml').read()
-			self.logger.debug('FetchXML() %r took %.2fs' % (url, time.time() - start))
-			return xml
+			xml = u.read()
+			self.logger.debug('FetchXML() %r/%r took %.2fs' % (self.options.realm, clist, time.time() - start))
+			
+			# Check for a redirect, that's a failed fetch... sort of. Ugh.
+			if not u.geturl().endswith('c=168'):
+				return False
+			else:
+				return xml
 	
-	# Fetch any missing achievement icons
-	def FetchIcons(self):
+	# -----------------------------------------------------------------------
+	# Fix comment
+	def ParseArmory(self, *chars):
+		xml = self.FetchXML(chars)
+		
+		# Got redirected, fail
+		if xml is False:
+			return True
+		
+		# FetchXML error of some sort, force a cache load and try the next set
+		elif xml is None:
+			self.logger.warning('FetchXML() returned None for %r, forcing cache load' % chars)
+			for char in chars:
+				c_data = self.CacheLoad(char, force=True)
+				if c_data:
+					self.data[char] = c_data
+				else:
+					for meta in self.metas:
+						self.data[char][meta.name] = meta.check_achievements({})
+			return False
+		
+		# Find all of the nested categories
+		categories = ET.fromstring(xml).findall('category/category')
+		
 		for meta in self.metas:
-			for a_id, a_img in meta.achievements.values():
-				if a_img == '-':
-					continue
+			p = {}
+			for char in chars:
+				p[char] = {}
+			
+			for achievement in categories[meta.section].findall('achievement'):
+				a_title = achievement.get('title')
 				
-				filename = '%s.jpg' % (a_img)
-				filepath = os.path.join('files', filename)
-				if os.path.exists(filepath):
-					continue
+				if len(chars) == 1:
+					p[chars[0]][a_title] = achievement.get('dateCompleted', None)
 				
-				url = ICON_URL % (a_img)
-				req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
-				data = urllib2.urlopen(req).read()
-				open(filepath, 'wb').write(data)
+				else:
+					cs = achievement.findall('c')
+					# Someone didn't exist or whatever, we'll have to do them singly. Ugh.
+					if len(cs) < len(chars):
+						return True
+					
+					for j, complete in enumerate(cs):
+						p[chars[j]][a_title] = complete.get('dateCompleted', None)
+			
+			for char in chars:
+				self.data[char][meta.name] = meta.check_achievements(p[char])
+		
+		# Cache data for these characters
+		for char in chars:
+			self.CacheSave(char)
+		
+		# Sleep for a little while
+		time.sleep(random.randint(3, 6))
+		
+		return False
 	
 	# -----------------------------------------------------------------------
 	# Dump some horrible HTML to our output file
