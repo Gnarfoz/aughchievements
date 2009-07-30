@@ -5,6 +5,7 @@
 __author__ = "Freddie (freddie@madcowdisease.org)"
 
 import cPickle
+import logging
 import os
 import random
 import sys
@@ -33,62 +34,74 @@ class Augh():
 	def __init__(self, options):
 		self.options = options
 		
-		# Characters from a guild list on the armory
-		if self.options.guild:
-			self.chars = self.FetchGuildPlayers()
+		# Set up logging
+		self.logger = logging.getLogger('augh')
+		console = logging.StreamHandler()
+		formatter = logging.Formatter('%(asctime)s %(levelname)s %(message)s')
+		console.setFormatter(formatter)
+		self.logger.addHandler(console)
 		
-		# Characters from a text file
-		elif self.options.charfile:
-			self.chars = []
-			for line in open(self.options.charfile):
-				self.chars.append(line.strip())
+		if self.options.verbose == 1:
+			self.logger.setLevel(logging.INFO)
+		elif self.options.verbose >= 2:
+			self.logger.setLevel(logging.DEBUG)
 		
-		# Characters from the command line
-		else:
-			self.chars = self.options.chars.split(',')
+		self.expire_time = time.time() - (self.options.expiretime * 60 * 60)
 		
 		self.data = {}
 		self.metas = achievement_data.get_data()
-		
-		self.CacheExpire()
 	
 	# -----------------------------------------------------------------------
 	# Slightly nasty workaround to get quoted UTF-8 URLs that the Armory expects
 	def ArmoryQuote(self, url):
 		return urllib.quote(unicode(url, 'latin1').encode('utf-8'))
 	
-	# Delete any outdated cache files
-	def CacheExpire(self):
-		expire_time = time.time() - (self.options.expiretime * 60 * 60)
-		for filename in os.listdir('cache'):
-			if not filename.endswith('.pickle'):
-				continue
-			filepath = os.path.join('cache', filename)
-			if os.stat(filepath).st_mtime < expire_time:
-				os.remove(filepath)
-	
+	# -----------------------------------------------------------------------
 	# Load data from cache
-	def CacheLoad(self, character):
+	def CacheLoad(self, character, force=False):
 		# Skip cache if we have to
-		if self.options.ignorecache is True:
+		if self.options.ignorecache is True and force is False:
 			return {}
 		
 		filename = '%s_%s.pickle' % (self.options.realm, character)
 		filepath = os.path.join('cache', filename)
-		if os.path.exists(filepath):
+		fexists = os.path.exists(filepath)
+		
+		load = False
+		if force is False:
+			if fexists and os.stat(filepath).st_mtime > self.expire_time:
+				load = True
+		else:
+			load = True
+		
+		if load is True and fexists:
 			return cPickle.load(open(filepath))
 		else:
 			return {}
 	
 	# Save data to cache
-	def CacheSave(self, character, data):
+	def CacheSave(self, character):
 		filename = '%s_%s.pickle' % (self.options.realm, character)
 		filepath = os.path.join('cache', filename)
-		cPickle.dump(data, open(filepath, 'w'))
+		cPickle.dump(self.data[character], open(filepath, 'w'))
 	
 	# -----------------------------------------------------------------------
 	
 	def go(self):
+		self.logger.debug('go() starting')
+		
+		# Characters from a guild list on the armory
+		if self.options.guild:
+			self.chars = self.FetchGuildPlayers()
+		# Characters from a text file
+		elif self.options.charfile:
+			self.chars = []
+			for line in open(self.options.charfile):
+				self.chars.append(line.strip())
+		# Characters from the command line
+		else:
+			self.chars = self.options.chars.split(',')
+		
 		# Blow up if there's no valid characters
 		if not self.chars:
 			print 'ERROR: no valid character names'
@@ -103,14 +116,27 @@ class Augh():
 			self.data[char] = c_data
 		
 		# Fetch data for up to 4 characters at a time to save time
-		for i in range(0, len(fetchme), 4):
+		flen = len(fetchme)
+		for i in range(0, flen, 4):
 			chars = fetchme[i:i+4]
 			
 			xml = self.FetchXML(chars)
-			root = ET.fromstring(xml)
+			
+			# FetchXML error of some sort, force a cache load and try the next set
+			if xml is None:
+				self.logger.warning('FetchXML() returned None for %r, forcing cache load' % chars)
+				for char in chars:
+					c_data = self.CacheLoad(char, force=True)
+					if c_data:
+						self.data[char] = c_data
+					else:
+						for meta in self.metas:
+							self.data[char][meta.name] = meta.check_achievements({})
+						self.CacheSave(char)
+				continue
 			
 			# Find all of the nested categories
-			categories = root.findall('category/category')
+			categories = ET.fromstring(xml).findall('category/category')
 			
 			for meta in self.metas:
 				p = {}
@@ -132,55 +158,69 @@ class Augh():
 			
 			# Cache data for these characters
 			for char in chars:
-				self.CacheSave(char, self.data[char])
+				self.CacheSave(char)
 			
 			# Sleep for a little while
-			time.sleep(random.randint(5, 10))
+			if i + 4 < flen:
+				time.sleep(random.randint(3, 6))
 		
 		# Fetch any missing icons
 		self.FetchIcons()
 		
 		# Spit out the HTML
 		self.OutputHTML()
+		
+		self.logger.debug('go() finished')
 	
 	# -----------------------------------------------------------------------
 	# Fetch the guild player list from the Armory
 	def FetchGuildPlayers(self):
 		url = GUILD_URL % (self.ArmoryQuote(self.options.realm), self.ArmoryQuote(self.options.guild))
 		req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
-		xml = urllib2.urlopen(req).read()
-		root = ET.fromstring(xml)
 		
-		chars = []
-		for character in root.findall('guildInfo/guild/members/character'):
-			if character.get('level') == CHAR_LEVEL:
-				if self.options.maxrank > 0:
-					rank = int(character.get('rank'))
-					if rank > self.options.maxrank:
-						continue
-				
-				chars.append(character.get('name').encode('latin-1'))
-		
-		return chars
+		start = time.time()
+		try:
+			xml = urllib2.urlopen(req).read()
+		except urllib2.HTTPError, e:
+			self.logger.warning('FetchGuild() %r HTTP %s!' % (url, e.code))
+			return []
+		else:
+			self.logger.debug('FetchGuild() %r took %.2fs' % (url, time.time() - start))
+			root = ET.fromstring(xml)
+			
+			chars = []
+			for character in root.findall('guildInfo/guild/members/character'):
+				if character.get('level') == CHAR_LEVEL:
+					if self.options.maxrank > 0:
+						rank = int(character.get('rank'))
+						if rank > self.options.maxrank:
+							continue
+					
+					chars.append(character.get('name').encode('latin-1'))
+			
+			chars.sort()
+			return chars
 	
 	# Fetch some XML comparison data from the Armory
 	def FetchXML(self, characters):
 		qrealm = self.ArmoryQuote(self.options.realm)
 		realms = ','.join([qrealm] * len(characters))
-		# This is kind of a nasty way to get the right UTF encoding for names
-		# containing annoying upper ASCII characters
 		chars = [self.ArmoryQuote(c) for c in characters]
-		#for character in characters:
-		#	c = urllib.quote(unicode(character, 'latin1').encode('utf-8'))
-		#	chars.append(c)
 		
 		url = BASE_URL % (realms, ','.join(chars))
 		
+		start = time.time()
 		req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
-		xml = urllib2.urlopen(req).read()
-		#open('temp.xml', 'w').write(xml)
-		#xml = open('temp.xml').read()
-		return xml
+		try:
+			xml = urllib2.urlopen(req).read()
+		except urllib2.HTTPError, e:
+			self.logger.warning('FetchXML() %r HTTP %s!' % (url, e.code))
+			return None
+		else:
+			#open('temp.xml', 'w').write(xml)
+			#xml = open('temp.xml').read()
+			self.logger.debug('FetchXML() %r took %.2fs' % (url, time.time() - start))
+			return xml
 	
 	# Fetch any missing achievement icons
 	def FetchIcons(self):
@@ -313,6 +353,7 @@ class Augh():
 def main():
 	# Parse command line options
 	parser = OptionParser()
+	parser.add_option('-v', '--verbose', dest='verbose', action='count', help="Increase verbosity (specify multiple times for more)")
 	parser.add_option('', '--metas', dest='metas', help='comma seperated list of meta achievement names')
 	parser.add_option('', '--realm', dest='realm', help='realm characters come from')
 	parser.add_option('', '--file', dest='filename', help='file to output generated HTML to', metavar='FILE')
@@ -329,6 +370,7 @@ def main():
 	parser.add_option_group(group)
 	
 	parser.set_defaults(
+		verbose=0,
 		metas='Glory of the Ulduar Raider,Heroic: Glory of the Ulduar Raider',
 		ignorecache=False,
 		noslackers=False,
