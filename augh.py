@@ -204,6 +204,7 @@ class Augh():
 		else:
 			xml = u.read()
 			self.logger.debug('FetchXML() %r/%r took %.2fs' % (self.options.realm, clist, time.time() - start))
+			#open('dump.xml', 'w').write(xml)
 			
 			# Check for a redirect, that's a failed fetch... sort of. Ugh.
 			if not u.geturl().endswith('c=168'):
@@ -399,7 +400,7 @@ def main():
 	
 	parser.set_defaults(
 		verbose=0,
-		metas='Glory of the Ulduar Raider,Heroic: Glory of the Ulduar Raider',
+		metas='Glory of the Raider (25 player),Glory of the Ulduar Raider (25 player)',
 		ignorecache=False,
 		noslackers=False,
 		expiretime=8,
