@@ -22,6 +22,7 @@ import achievement_data
 BASE_URL = 'http://www.wowarmory.com/character-achievements.xml?r=%s&n=%s&c=168'
 GUILD_URL = 'http://www.wowarmory.com/guild-info.xml?r=%s&gn=%s'
 ICON_URL = 'http://www.wowarmory.com/wow-icons/_images/51x51/%s.jpg'
+LINK_URL = 'http://www.wowarmory.com/character-sheet.xml?r=%s&n=%s'
 
 CHAR_LEVEL = '80'
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6'
@@ -33,6 +34,7 @@ DEFAULT_EXPIRE = 8
 class Augh():
 	def __init__(self, options):
 		self.options = options
+		self.qrealm = self.ArmoryQuote(self.options.realm)
 		
 		# Set up logging
 		self.logger = logging.getLogger('augh')
@@ -184,8 +186,7 @@ class Augh():
 	
 	# Fetch some XML comparison data from the Armory
 	def FetchXML(self, characters):
-		qrealm = self.ArmoryQuote(self.options.realm)
-		realms = ','.join([qrealm] * len(characters))
+		realms = ','.join([self.qrealm] * len(characters))
 		chars = [self.ArmoryQuote(c) for c in characters]
 		clist = ','.join(chars)
 		
@@ -342,11 +343,14 @@ class Augh():
 			n = 1
 			for name, p_data in players:
 				# Skip people with no meta progress
-				if not [ok for ok in p_data[meta.name] if ok is not False]:
+				if self.options.noslackers and not [ok for ok in p_data[meta.name] if ok is not False]:
 					continue
 				
+				if p_data.get('url', None) is None:
+					p_data['url'] = LINK_URL % (self.qrealm, self.ArmoryQuote(name))
+				
 				n = (n + 1) % 2
-				outfile.write('<tr class="row%s"><td class="name">%s</td>' % (n, name))
+				outfile.write('<tr class="row%s"><td class="name"><a href="%s">%s</a></td>' % (n, p_data['url'], name))
 				
 				for p_ok in p_data[meta.name]:
 					if p_ok is False:
