@@ -124,7 +124,7 @@ class Augh():
 			
 			broken = self.ParseArmory(*chars)
 			if broken is True:
-				self.logger.warning('ParseArmory() failed for %r, going single' % chars)
+				self.logger.warning('ParseArmory() failed for %r, going single' % (chars))
 				
 				for char in chars:
 					broken = self.ParseArmory(char)
