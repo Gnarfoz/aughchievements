@@ -143,5 +143,39 @@ def get_data():
 	m.add_progress('One Light in the Darkness (25 player)', 'Two Lights in the Darkness (25 player)', '-2')
 	m.add_progress('One Light in the Darkness (25 player)', 'Three Lights in the Darkness (25 player)', '-1')
 	metas.append(m)
+
+	# 10 man Call of the Crusade
+	m = Meta('Call of the Crusade (10 player)', 8)
+	m.add_achievements(
+		('Call of the Crusade (10 player)', 3917, 'achievement_reputation_argentchampion'),
+		('Call of the Grand Crusade (10 player)', 3918, 'achievement_reputation_argentchampion'),
+		('Upper Back Pain (10 player)', 3797, 'inv_ammo_snowball'),
+		('Not One, But Two Jormungars (10 player)', 3936, 'ability_hunter_pet_worm'),
+		('Three Sixty Pain Spike (10 player)', 3996, 'spell_shadow_shadowmend'),
+		('Resilience Will Fix It (10 player)', 3798, 'achievement_arena_5v5_3'),
+		('Salt and Pepper (10 player)', 3799, 'achievement_boss_svalasorrowgrave'),
+		('The Traitor King (10 player)', 3800, 'achievement_boss_anubarak'),
+		('A Tribute to Insanity (10 player)', 3819, 'inv_crown_13'),
+	)
+	m.add_progress('A Tribute to Insanity (10 player)', 'A Tribute to Mad Skill (10 player)', '45')
+	m.add_progress('A Tribute to Insanity (10 player)', 'A Tribute to Skill (10 player)', '25')
+	metas.append(m)
+	
+	# 25 man Call of the Crusade
+	m = Meta('Call of the Crusade (25 player)', 9)
+	m.add_achievements(
+		('Call of the Crusade (25 player)', 3916, 'achievement_reputation_argentchampion'),
+		('Call of the Grand Crusade (25 player)', 3812, 'achievement_reputation_argentchampion'),
+		('Upper Back Pain (25 player)', 3813, 'inv_ammo_snowball'),
+		('Not One, But Two Jormungars (25 player)', 3937, 'ability_hunter_pet_worm'),
+		('Three Sixty Pain Spike (25 player)', 3997, 'spell_shadow_shadowmend'),
+		('Resilience Will Fix It (25 player)', 3814, 'achievement_arena_5v5_3'),
+		('Salt and Pepper (25 player)', 3815, 'achievement_boss_svalasorrowgrave'),
+		('The Traitor King (25 player)', 3816, 'achievement_boss_anubarak'),
+		('A Tribute to Insanity (25 player)', 3819, 'inv_crown_13'),
+	)
+	m.add_progress('A Tribute to Insanity (25 player)', 'A Tribute to Mad Skill (25 player)', '45')
+	m.add_progress('A Tribute to Insanity (25 player)', 'A Tribute to Skill (25 player)', '25')
+	metas.append(m)	
 	
 	return metas
