@@ -342,8 +342,10 @@ class Augh():
 			# Player rows
 			n = 1
 			for name, p_data in players:
+				meta_complete, meta_cutoff = meta.check_meta_cutoff(p_data[meta.name])
+				
 				# Skip people with no meta progress
-				if self.options.noslackers and not [ok for ok in p_data[meta.name] if ok is not False]:
+				if self.options.noslackers and meta_complete is None:
 					continue
 				
 				if p_data.get('url', None) is None:
@@ -360,10 +362,12 @@ class Augh():
 					else:
 						outfile.write('<td class="meta">%s</td>' % (p_ok))
 				
-				# All complete?
-				trues = [t for t in p_data[meta.name] if t is not False and len(t) == 10]
-				if len(trues) == len(p_data[meta.name]):
-					outfile.write('<td class="star"><img src="files/star.png"></td>')
+				# Completion info
+				if meta_complete is True:
+					if meta_cutoff is True:
+						outfile.write('<td class="star"><img src="files/star.png"></td>')
+					else:
+						outfile.write('<td class="star"><img src="files/yes.png"></td>')
 				else:
 					outfile.write('<td class="star"></td>')
 				

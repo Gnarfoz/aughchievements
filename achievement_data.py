@@ -1,9 +1,10 @@
 "Data for Augh!chievements"
 
 class Meta:
-	def __init__(self, name, section):
+	def __init__(self, name, section, cutoff=None):
 		self.name = name
 		self.section = section
+		self.cutoff = cutoff
 		
 		self.achievements = {}
 		self.order = []
@@ -36,6 +37,24 @@ class Meta:
 				results.append(found)
 		
 		return results
+	
+	def check_meta_cutoff(self, data):
+		'Check the cutoff date for the meta'
+		
+		dates = [d for d in data if d is not False and len(d) == 10]
+		dates.sort()
+		
+		if len(dates) == 0:
+			return (None, False)
+		
+		if len(dates) < len(data):
+			return (False, False)
+		
+		# Failed cutoff date
+		if dates[-1] > self.cutoff:
+			return (True, False)
+		else:
+			return (True, True)
 
 # ---------------------------------------------------------------------------
 
@@ -43,7 +62,7 @@ def get_data():
 	metas = []
 	
 	# 10 man Malygos/Naxxramas/Sartharion
-	m = Meta('Glory of the Raider (10 player)', 4)
+	m = Meta('Glory of the Raider (10 player)', 4, cutoff='2009-04-14')
 	m.add_achievements(
 		('The Dedicated Few (10 player)', 578, 'spell_shadow_raisedead'),
 		('Arachnophobia (10 player)', 1858, 'achievement_halloween_spider_01'),
@@ -68,7 +87,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Malygos/Naxxramas/Sartharion
-	m = Meta('Glory of the Raider (25 player)', 5)
+	m = Meta('Glory of the Raider (25 player)', 5, cutoff='2009-04-14')
 	m.add_achievements(
 		('The Dedicated Few (25 player)', 579, 'spell_shadow_raisedead'),
 		('Arachnophobia (25 player)', 1859, 'achievement_halloween_spider_01'),
