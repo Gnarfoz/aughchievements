@@ -51,7 +51,7 @@ class Meta:
 			return (False, False)
 		
 		if self.cutoff is None or dates[-1] < self.cutoff:
-			return (True, True)
+			return (True, dates[-1])
 		else:
 			return (True, False)
 

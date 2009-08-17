@@ -19,22 +19,24 @@ import achievement_data
 
 # ---------------------------------------------------------------------------
 
-BASE_URL = 'http://www.wowarmory.com/character-achievements.xml?r=%s&n=%s&c=168'
-GUILD_URL = 'http://www.wowarmory.com/guild-info.xml?r=%s&gn=%s'
-ICON_URL = 'http://www.wowarmory.com/wow-icons/_images/51x51/%s.jpg'
-LINK_URL = 'http://www.wowarmory.com/character-sheet.xml?r=%s&n=%s'
+BASE_URL = 'http://%s.wowarmory.com/character-achievements.xml?r=%s&n=%s&c=168'
+GUILD_URL = 'http://%s.wowarmory.com/guild-info.xml?r=%s&gn=%s'
+ICON_URL = 'http://%s.wowarmory.com/wow-icons/_images/51x51/%s.jpg'
+LINK_URL = 'http://%s.wowarmory.com/character-sheet.xml?r=%s&n=%s'
 
 CHAR_LEVEL = '80'
-USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.0.6) Gecko/2009011913 Firefox/3.0.6'
+USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.1) Gecko/20090715 Firefox/3.5.1'
 
 DEFAULT_EXPIRE = 8
+REGIONS = ('us', 'eu')
 
 # ---------------------------------------------------------------------------
 
 class Augh():
 	def __init__(self, options):
 		self.options = options
-		self.qrealm = self.ArmoryQuote(self.options.realm)
+		self.qrealm = self.ArmoryQuote(options.realm)
+		self.region = options.region.lower()
 		
 		# Set up logging
 		self.logger = logging.getLogger('augh')
@@ -43,12 +45,12 @@ class Augh():
 		console.setFormatter(formatter)
 		self.logger.addHandler(console)
 		
-		if self.options.verbose == 1:
+		if options.verbose == 1:
 			self.logger.setLevel(logging.INFO)
-		elif self.options.verbose >= 2:
+		elif options.verbose >= 2:
 			self.logger.setLevel(logging.DEBUG)
 		
-		self.expire_time = time.time() - (self.options.expiretime * 60 * 60)
+		self.expire_time = time.time() - (options.expiretime * 60 * 60)
 		
 		self.data = {}
 		self.metas = achievement_data.get_data()
@@ -65,7 +67,7 @@ class Augh():
 		if self.options.ignorecache is True and force is False:
 			return {}
 		
-		filename = '%s_%s.pickle' % (self.options.realm, character)
+		filename = '%s_%s_%s.pickle' % (self.region, self.options.realm, character)
 		filepath = os.path.join('cache', filename)
 		fexists = os.path.exists(filepath)
 		
@@ -83,7 +85,7 @@ class Augh():
 	
 	# Save data to cache
 	def CacheSave(self, character):
-		filename = '%s_%s.pickle' % (self.options.realm, character)
+		filename = '%s_%s_%s.pickle' % (self.region, self.options.realm, character)
 		filepath = os.path.join('cache', filename)
 		cPickle.dump(self.data[character], open(filepath, 'w'))
 	
@@ -151,14 +153,14 @@ class Augh():
 				if os.path.exists(filepath):
 					continue
 				
-				url = ICON_URL % (a_img)
+				url = ICON_URL % (self.region, a_img)
 				req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
 				data = urllib2.urlopen(req).read()
 				open(filepath, 'wb').write(data)
 	
 	# Fetch the guild player list from the Armory
 	def FetchGuildPlayers(self):
-		url = GUILD_URL % (self.ArmoryQuote(self.options.realm), self.ArmoryQuote(self.options.guild))
+		url = GUILD_URL % (self.region, self.qrealm, self.ArmoryQuote(self.options.guild))
 		req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
 		
 		start = time.time()
@@ -190,7 +192,7 @@ class Augh():
 		chars = [self.ArmoryQuote(c) for c in characters]
 		clist = ','.join(chars)
 		
-		url = BASE_URL % (realms, clist)
+		url = BASE_URL % (self.region, realms, clist)
 		
 		start = time.time()
 		req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
@@ -349,7 +351,7 @@ class Augh():
 					continue
 				
 				if p_data.get('url', None) is None:
-					p_data['url'] = LINK_URL % (self.qrealm, self.ArmoryQuote(name))
+					p_data['url'] = LINK_URL % (self.region, self.qrealm, self.ArmoryQuote(name))
 				
 				n = (n + 1) % 2
 				outfile.write('<tr class="row%s"><td class="name"><a href="%s">%s</a></td>' % (n, p_data['url'], name))
@@ -363,13 +365,14 @@ class Augh():
 						outfile.write('<td class="meta">%s</td>' % (p_ok))
 				
 				# Completion info
-				if meta_complete is True:
-					if meta_cutoff is True:
-						outfile.write('<td class="star"><img src="files/star.png"></td>')
-					else:
-						outfile.write('<td class="star"><img src="files/yes.png"></td>')
-				else:
+				if meta_complete is False:
 					outfile.write('<td class="star"></td>')
+				else:
+					if meta_cutoff is False:
+						img = 'yes'
+					else:
+						img = 'star'
+					outfile.write('<td class="star"><img src="files/%s.png" title="%s"></td>' % (img, meta_cutoff))
 				
 				outfile.write('</tr>\n')
 			
@@ -392,6 +395,7 @@ def main():
 	parser = OptionParser()
 	parser.add_option('-v', '--verbose', dest='verbose', action='count', help="Increase verbosity (specify multiple times for more)")
 	parser.add_option('', '--metas', dest='metas', help='comma seperated list of meta achievement names')
+	parser.add_option('', '--region', dest='region', help='Armory region to use (us, eu)')
 	parser.add_option('', '--realm', dest='realm', help='realm characters come from')
 	parser.add_option('', '--file', dest='filename', help='file to output generated HTML to', metavar='FILE')
 	parser.add_option('', '--title', dest='title', help='title of HTML page')
@@ -409,6 +413,7 @@ def main():
 	parser.set_defaults(
 		verbose=0,
 		metas='Glory of the Raider (25 player),Glory of the Ulduar Raider (25 player)',
+		region='us',
 		ignorecache=False,
 		noslackers=False,
 		expiretime=8,
@@ -422,6 +427,8 @@ def main():
 		parser.error('--realm is required!')
 	if options.guild is None and options.charfile is None and options.chars is None:
 		parser.error('--guild, --charfile or --chars is required!')
+	if options.region.lower() not in REGIONS:
+		parser.error('%r is not a valid region, try one of these: %s' % (options.region, ', '.join(REGIONS)))
 	
 	# Go!
 	augh = Augh(options)
