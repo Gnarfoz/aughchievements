@@ -50,11 +50,10 @@ class Meta:
 		if len(dates) < len(data):
 			return (False, False)
 		
-		# Failed cutoff date
-		if dates[-1] > self.cutoff:
-			return (True, False)
-		else:
+		if self.cutoff is None or dates[-1] < self.cutoff:
 			return (True, True)
+		else:
+			return (True, False)
 
 # ---------------------------------------------------------------------------
 
