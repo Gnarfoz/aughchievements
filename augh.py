@@ -378,7 +378,7 @@ class Augh():
 						outfile.write('<td class="meta">%s</td>' % (p_ok))
 				
 				# Completion info
-				if meta_complete is False:
+				if meta_complete is None or meta_complete is False:
 					outfile.write('<td class="star"></td>')
 				else:
 					if meta_cutoff is False:
