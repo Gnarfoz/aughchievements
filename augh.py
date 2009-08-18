@@ -28,7 +28,7 @@ CHAR_LEVEL = '80'
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.1) Gecko/20090715 Firefox/3.5.1'
 
 DEFAULT_EXPIRE = 8
-REGIONS = ('us', 'eu')
+REGIONS = ('us', 'eu', 'tw', 'kr')
 
 # ---------------------------------------------------------------------------
 
@@ -58,17 +58,23 @@ class Augh():
 	# -----------------------------------------------------------------------
 	# Slightly nasty workaround to get quoted UTF-8 URLs that the Armory expects
 	def ArmoryQuote(self, url):
-		return urllib.quote(unicode(url, 'latin1').encode('utf-8'))
+		return urllib.quote(url.encode('utf-8'))
 	
 	# -----------------------------------------------------------------------
+	# Get a path to a cache file
+	def CachePath(self, character):
+		char = character.encode('utf-8').lower()
+		filename = '%s_%s_%s.pickle' % (self.region, self.options.realm.lower(),char)
+		filepath = os.path.join('cache', filename)
+		return filepath
+	
 	# Load data from cache
 	def CacheLoad(self, character, force=False):
 		# Skip cache if we have to
 		if self.options.ignorecache is True and force is False:
 			return {}
 		
-		filename = '%s_%s_%s.pickle' % (self.region, self.options.realm, character)
-		filepath = os.path.join('cache', filename)
+		filepath = self.CachePath(character)
 		fexists = os.path.exists(filepath)
 		
 		load = False
@@ -85,8 +91,7 @@ class Augh():
 	
 	# Save data to cache
 	def CacheSave(self, character):
-		filename = '%s_%s_%s.pickle' % (self.region, self.options.realm, character)
-		filepath = os.path.join('cache', filename)
+		filepath = self.CachePath(character)
 		cPickle.dump(self.data[character], open(filepath, 'w'))
 	
 	# -----------------------------------------------------------------------
@@ -181,7 +186,13 @@ class Augh():
 						if rank > self.options.maxrank:
 							continue
 					
-					chars.append(character.get('name').encode('latin-1'))
+					# Convert non-unicode strings (possibly containing upper ASCII) into
+					# latin-1 (possibly unicode) strings
+					name = character.get('name')
+					if isinstance(name, str):
+						chars.append(name.encode('latin-1'))
+					else:
+						chars.append(name)
 			
 			chars.sort()
 			return chars
@@ -293,6 +304,7 @@ class Augh():
 """<html>
 <head>
 <title>%s</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <link href="files/augh.css" rel="stylesheet" type="text/css">
 <script src="http://www.wowhead.com/widgets/power.js"></script>
 </head>
@@ -354,7 +366,8 @@ class Augh():
 					p_data['url'] = LINK_URL % (self.region, self.qrealm, self.ArmoryQuote(name))
 				
 				n = (n + 1) % 2
-				outfile.write('<tr class="row%s"><td class="name"><a href="%s">%s</a></td>' % (n, p_data['url'], name))
+				outfile.write('<tr class="row%s"><td class="name"><a href="%s">%s</a></td>' %
+					(n, p_data['url'], name.encode('utf-8')))
 				
 				for p_ok in p_data[meta.name]:
 					if p_ok is False:
