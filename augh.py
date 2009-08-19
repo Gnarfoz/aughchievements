@@ -32,7 +32,7 @@ REGIONS = ('us', 'eu', 'tw', 'kr')
 
 # ---------------------------------------------------------------------------
 
-class Augh():
+class Augh:
 	def __init__(self, options):
 		self.options = options
 		self.qrealm = self.ArmoryQuote(options.realm)
