@@ -12,10 +12,15 @@ import sys
 import time
 import urllib
 import urllib2
-import xml.etree.ElementTree as ET
 from optparse import OptionParser, OptionGroup
 
 import achievement_data
+
+#
+try:
+	import xml.etree.ElementTree as ET
+except ImportError:
+	import elementtree.ElementTree as ET
 
 # ---------------------------------------------------------------------------
 
