@@ -114,10 +114,10 @@ class Augh:
 		elif self.options.charfile:
 			self.chars = []
 			for line in open(self.options.charfile):
-				self.chars.append(line.strip().encode('latin-1'))
+				self.chars.append(unicode(line.strip(), 'latin-1'))
 		# Characters from the command line
 		else:
-			self.chars = [c.encode('latin-1') for c in self.options.chars.split(',') if c]
+			self.chars = [unicode(c, 'latin-1') for c in self.options.chars.split(',') if c]
 		
 		# Blow up if there's no valid characters
 		if self.chars == []:
@@ -193,10 +193,10 @@ class Augh:
 							continue
 					
 					# Convert non-unicode strings (possibly containing upper ASCII) into
-					# latin-1 (possibly unicode) strings
+					# latin-1 unicode strings
 					name = character.get('name')
 					if isinstance(name, str):
-						chars.append(name.encode('latin-1'))
+						chars.append(unicode(name, 'latin-1'))
 					else:
 						chars.append(name)
 			
