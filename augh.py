@@ -69,7 +69,7 @@ class Augh:
 	# Get a path to a cache file
 	def CachePath(self, character):
 		char = character.encode('utf-8').lower()
-		filename = '%s_%s_%s.pickle' % (self.region, self.options.realm.lower(),char)
+		filename = '%s_%s_%s.pickle' % (self.region, self.options.realm.lower(), char)
 		filepath = os.path.join('cache', filename)
 		return filepath
 	
@@ -114,10 +114,10 @@ class Augh:
 		elif self.options.charfile:
 			self.chars = []
 			for line in open(self.options.charfile):
-				self.chars.append(line.strip())
+				self.chars.append(line.strip().encode('latin-1'))
 		# Characters from the command line
 		else:
-			self.chars = [c for c in self.options.chars.split(',') if c]
+			self.chars = [c.encode('latin-1') for c in self.options.chars.split(',') if c]
 		
 		# Blow up if there's no valid characters
 		if self.chars == []:
@@ -138,7 +138,8 @@ class Augh:
 			
 			broken = self.ParseArmory(*chars)
 			if broken is True:
-				self.logger.warning('ParseArmory() failed for %r, going single' % (chars))
+				tolog = 'ParseArmory() failed for %r, going single' % (chars)
+				self.logger.warning(tolog)
 				
 				for char in chars:
 					broken = self.ParseArmory(char)
@@ -242,7 +243,8 @@ class Augh:
 		
 		# FetchXML error of some sort, force a cache load and try the next set
 		elif xml is None:
-			self.logger.warning('FetchXML() returned None for %r, forcing cache load' % (chars))
+			tolog = 'FetchXML() returned None for %r, forcing cache load' % (''.join(chars))
+			self.logger.warning(tolog)
 			for char in chars:
 				c_data = self.CacheLoad(char, force=True)
 				if c_data:
