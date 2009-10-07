@@ -243,7 +243,7 @@ class Augh:
 		
 		# FetchXML error of some sort, force a cache load and try the next set
 		elif xml is None:
-			tolog = 'FetchXML() returned None for %r, forcing cache load' % (''.join(chars))
+			tolog = 'FetchXML() returned None for %r, forcing cache load' % (', '.join(chars))
 			self.logger.warning(tolog)
 			for char in chars:
 				c_data = self.CacheLoad(char, force=True)
