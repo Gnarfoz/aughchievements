@@ -321,8 +321,8 @@ class Augh:
 		# Only output metas they were interested in
 		interested = self.options.metas.split(',')
 		
-		for findme in interested:
-			metas = [z for z in self.metas if z.name == findme]
+		for findme in [inter.lower() for inter in interested]:
+			metas = [z for z in self.metas if z.name.lower() == findme or z.short_name.lower() == findme]
 			if not metas:
 				print 'ERROR: unknown meta %r' % (findme)
 				continue
@@ -432,7 +432,7 @@ def main():
 	
 	parser.set_defaults(
 		verbose=0,
-		metas='Glory of the Raider (25 player),Glory of the Ulduar Raider (25 player)',
+		metas='icc25,toc25',
 		region='us',
 		ignorecache=False,
 		noslackers=False,

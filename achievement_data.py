@@ -1,8 +1,9 @@
 "Data for Augh!chievements"
 
 class Meta:
-	def __init__(self, name, section, cutoff=None):
+	def __init__(self, name, short_name, section, cutoff=None):
 		self.name = name
+		self.short_name = short_name
 		self.section = section
 		self.cutoff = cutoff
 		
@@ -61,7 +62,7 @@ def get_data():
 	metas = []
 	
 	# 10 man Malygos/Naxxramas/Sartharion
-	m = Meta('Glory of the Raider (10 player)', 4, cutoff='2009-04-14')
+	m = Meta('Glory of the Raider (10 player)', 'naxx10', 4, cutoff='2009-04-14')
 	m.add_achievements(
 		('The Dedicated Few (10 player)', 578, 'spell_shadow_raisedead'),
 		('Arachnophobia (10 player)', 1858, 'achievement_halloween_spider_01'),
@@ -86,7 +87,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Malygos/Naxxramas/Sartharion
-	m = Meta('Glory of the Raider (25 player)', 5, cutoff='2009-04-14')
+	m = Meta('Glory of the Raider (25 player)', 'naxx25', 5, cutoff='2009-04-14')
 	m.add_achievements(
 		('The Dedicated Few (25 player)', 579, 'spell_shadow_raisedead'),
 		('Arachnophobia (25 player)', 1859, 'achievement_halloween_spider_01'),
@@ -111,7 +112,7 @@ def get_data():
 	metas.append(m)
 	
 	# 10 man Ulduar
-	m = Meta('Glory of the Ulduar Raider (10 player)', 6)
+	m = Meta('Glory of the Ulduar Raider (10 player)', 'uld10', 6)
 	m.add_achievements(
 		('Orbit-uary (10 player)', 3056, 'inv_misc_shadowegg'),
 		("Stokin' the Furnace (10 player)", 2930, 'achievement_boss_ignis_01'),
@@ -137,7 +138,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Ulduar
-	m = Meta('Glory of the Ulduar Raider (25 player)', 7)
+	m = Meta('Glory of the Ulduar Raider (25 player)', 'uld25', 7)
 	m.add_achievements(
 		('Orbit-uary (25 player)', 3057, 'inv_misc_shadowegg'),
 		("Stokin' the Furnace (25 player)", 2929, 'achievement_boss_ignis_01'),
@@ -163,7 +164,7 @@ def get_data():
 	metas.append(m)
 
 	# 10 man Call of the Crusade
-	m = Meta('Call of the Crusade (10 player)', 8)
+	m = Meta('Call of the Crusade (10 player)', 'toc10', 8)
 	m.add_achievements(
 		('Call of the Crusade (10 player)', 3917, 'achievement_reputation_argentchampion'),
 		('Call of the Grand Crusade (10 player)', 3918, 'achievement_reputation_argentchampion'),
@@ -180,7 +181,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Call of the Crusade
-	m = Meta('Call of the Crusade (25 player)', 9)
+	m = Meta('Call of the Crusade (25 player)', 'toc25', 9)
 	m.add_achievements(
 		('Call of the Crusade (25 player)', 3916, 'achievement_reputation_argentchampion'),
 		('Call of the Grand Crusade (25 player)', 3812, 'achievement_reputation_argentchampion'),
@@ -197,7 +198,7 @@ def get_data():
 	metas.append(m)	
 	
 	# 10 man Icecrown Citadel
-	m = Meta('Glory of the Icecrown Raider (10 player)', 10)
+	m = Meta('Glory of the Icecrown Raider (10 player)', 'icc10', 10)
 	m.add_achievements(
         ('Boned (10 player)', 4534, 'achievement_boss_lordmarrowgar'),
         ('Full House (10 player)', 4535, 'achievement_boss_ladydeathwhisper'),
@@ -220,7 +221,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Icecrown Citadel
-	m = Meta('Glory of the Icecrown Raider (25 player)', 11)
+	m = Meta('Glory of the Icecrown Raider (25 player)', 'icc25', 11)
 	m.add_achievements(
         ('Boned (25 player)', 4610, 'achievement_boss_lordmarrowgar'),
         ('Full House (25 player)', 4611, 'achievement_boss_ladydeathwhisper'),
