@@ -200,6 +200,10 @@ def get_data():
 	# 10 man Icecrown Citadel
 	m = Meta('Glory of the Icecrown Raider (10 player)', 'icc10', 10)
 	m.add_achievements(
+        ('Heroic: Storming the Citadel (10 player)', 4628, 'achievement_dungeon_icecrown_icecrownentrance'),
+        ('Heroic: The Plagueworks (10 player)', 4629, 'achievement_dungeon_plaguewing'),
+        ('Heroic: The Crimson Hall (10 player)', 4630, 'achievement_dungeon_crimsonhall'),
+        ('Heroic: The Frostwing Halls (10 player)', 4631, 'achievement_dungeon_icecrown_frostwinghalls'),
         ('Boned (10 player)', 4534, 'achievement_boss_lordmarrowgar'),
         ('Full House (10 player)', 4535, 'achievement_boss_ladydeathwhisper'),
         ("I'm on a Boat (10 player)", 4536, 'achievement_dungeon_hordeairship'),
@@ -213,16 +217,16 @@ def get_data():
         ('All You Can Eat (10 player)', 4580, 'achievement_boss_sindragosa'),
         ('Been Waiting a Long Time for This (10 player)', 4601, 'spell_deathknight_bloodplague'),
         ('Neck-Deep in Vile (10 player)', 4581, 'spell_shadow_devouringplague'),
-        ('Heroic: Storming the Citadel (10 player)', 4628, 'achievement_dungeon_icecrown_icecrownentrance'),
-        ('Heroic: The Plagueworks (10 player)', 4629, 'achievement_dungeon_plaguewing'),
-        ('Heroic: The Crimson Hall (10 player)', 4630, 'achievement_dungeon_crimsonhall'),
-        ('Heroic: The Frostwing Halls (10 player)', 4631, 'achievement_dungeon_icecrown_frostwinghalls'),
 	)
 	metas.append(m)
 	
 	# 25 man Icecrown Citadel
 	m = Meta('Glory of the Icecrown Raider (25 player)', 'icc25', 11)
 	m.add_achievements(
+        ('Heroic: Storming the Citadel (25 player)', 4632, 'achievement_dungeon_icecrown_icecrownentrance'),
+        ('Heroic: The Plagueworks (25 player)', 4633, 'achievement_dungeon_plaguewing'),
+        ('Heroic: The Crimson Hall (25 player)', 4634, 'achievement_dungeon_crimsonhall'),
+        ('Heroic: The Frostwing Halls (25 player)', 4635, 'achievement_dungeon_icecrown_frostwinghalls'),
         ('Boned (25 player)', 4610, 'achievement_boss_lordmarrowgar'),
         ('Full House (25 player)', 4611, 'achievement_boss_ladydeathwhisper'),
         ("I'm on a Boat (25 player)", 4612, 'achievement_dungeon_hordeairship'),
@@ -236,10 +240,6 @@ def get_data():
         ('All You Can Eat (25 player)', 4620, 'achievement_boss_sindragosa'),
         ('Been Waiting a Long Time for This (25 player)', 4621, 'spell_deathknight_bloodplague'),
         ('Neck-Deep in Vile (25 player)', 4622, 'spell_shadow_devouringplague'),
-        ('Heroic: Storming the Citadel (25 player)', 4632, 'achievement_dungeon_icecrown_icecrownentrance'),
-        ('Heroic: The Plagueworks (25 player)', 4633, 'achievement_dungeon_plaguewing'),
-        ('Heroic: The Crimson Hall (25 player)', 4634, 'achievement_dungeon_crimsonhall'),
-        ('Heroic: The Frostwing Halls (25 player)', 4635, 'achievement_dungeon_icecrown_frostwinghalls'),
 	)
 	metas.append(m)
 	
