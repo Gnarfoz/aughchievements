@@ -238,6 +238,7 @@ def get_data():
         ('Portal Jockey (25 player)', 4619, 'achievement_boss_shadeoferanikus'),
         ('All You Can Eat (25 player)', 4620, 'achievement_boss_sindragosa'),
         ('Been Waiting a Long Time for This (25 player)', 4621, 'spell_deathknight_bloodplague'),
+		('Neck-Deep in Vile', 4622, 'spell_shadow_devouringplague'),
 	)
 	metas.append(m)
 	
