@@ -210,7 +210,6 @@ class Augh:
 			#			chars.append(name)
 			
 			chars.sort()
-			print chars
 			return chars
 	
 	# Fetch some XML comparison data from the Armory
