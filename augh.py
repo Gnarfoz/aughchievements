@@ -26,8 +26,10 @@ except ImportError:
 
 BASE_URL = 'http://%s.wowarmory.com/character-achievements.xml?r=%s&n=%s&c=168'
 GUILD_URL = 'http://%s.wowarmory.com/guild-info.xml?r=%s&gn=%s'
-ICON_URL = 'http://%s.wowarmory.com/wow-icons/_images/51x51/%s.jpg'
-LINK_URL = 'http://%s.wowarmory.com/character-sheet.xml?r=%s&n=%s'
+#ICON_URL = 'http://%s.wowarmory.com/wow-icons/_images/51x51/%s.jpg'
+#LINK_URL = 'http://%s.wowarmory.com/character-sheet.xml?r=%s&n=%s'
+ICON_URL = 'http://%s.battle.net/wow-assets/static/images/icons/56/%s.jpg'
+LINK_URL = 'http://%s.battle.net/wow/en/character/%s/%s/advanced'
 
 CHAR_LEVEL = '80'
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.1) Gecko/20090715 Firefox/3.5.1'
@@ -347,12 +349,12 @@ class Augh:
 				
 				if a_id == 0:
 					outfile.write(
-"""<th><img width=51 height=51 src="files/%s.jpg" title="%s"></th>
+"""<th><img width=35 height=35 src="files/%s.jpg" title="%s"></th>
 """ % (a_img, a_name))
 				
 				else:
 					outfile.write(
-"""<th><a href="http://www.wowhead.com/?achievement=%s"><img width=51 height=51 src="files/%s.jpg"></a></th>
+"""<th><a href="http://www.wowhead.com/?achievement=%s"><img width=35 height=35 src="files/%s.jpg"></a></th>
 """ % (a_id, a_img))
 			
 			outfile.write(

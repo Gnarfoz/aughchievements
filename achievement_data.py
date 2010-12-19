@@ -62,7 +62,7 @@ def get_data():
 	metas = []
 	
 	# 10 man Malygos/Naxxramas/Sartharion
-	m = Meta('Glory of the Raider (10 player)', 'naxx10', 4, cutoff='2009-04-14')
+	m = Meta('Glory of the Raider (10 player)', 'naxx10', 3, cutoff='2009-04-14')
 	m.add_achievements(
 		('The Dedicated Few (10 player)', 578, 'spell_shadow_raisedead'),
 		('Arachnophobia (10 player)', 1858, 'achievement_halloween_spider_01'),
@@ -87,7 +87,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Malygos/Naxxramas/Sartharion
-	m = Meta('Glory of the Raider (25 player)', 'naxx25', 5, cutoff='2009-04-14')
+	m = Meta('Glory of the Raider (25 player)', 'naxx25', 3, cutoff='2009-04-14')
 	m.add_achievements(
 		('The Dedicated Few (25 player)', 579, 'spell_shadow_raisedead'),
 		('Arachnophobia (25 player)', 1859, 'achievement_halloween_spider_01'),
@@ -112,7 +112,7 @@ def get_data():
 	metas.append(m)
 	
 	# 10 man Ulduar
-	m = Meta('Glory of the Ulduar Raider (10 player)', 'uld10', 6)
+	m = Meta('Glory of the Ulduar Raider (10 player)', 'uld10', 3)
 	m.add_achievements(
 		('Orbit-uary (10 player)', 3056, 'inv_misc_shadowegg'),
 		("Stokin' the Furnace (10 player)", 2930, 'achievement_boss_ignis_01'),
@@ -138,7 +138,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Ulduar
-	m = Meta('Glory of the Ulduar Raider (25 player)', 'uld25', 7)
+	m = Meta('Glory of the Ulduar Raider (25 player)', 'uld25', 3)
 	m.add_achievements(
 		('Orbit-uary (25 player)', 3057, 'inv_misc_shadowegg'),
 		("Stokin' the Furnace (25 player)", 2929, 'achievement_boss_ignis_01'),
@@ -164,7 +164,7 @@ def get_data():
 	metas.append(m)
 
 	# 10 man Call of the Crusade
-	m = Meta('Call of the Crusade (10 player)', 'toc10', 8)
+	m = Meta('Call of the Crusade (10 player)', 'toc10', 3)
 	m.add_achievements(
 		('Call of the Crusade (10 player)', 3917, 'achievement_reputation_argentchampion'),
 		('Call of the Grand Crusade (10 player)', 3918, 'achievement_reputation_argentchampion'),
@@ -181,7 +181,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Call of the Crusade
-	m = Meta('Call of the Crusade (25 player)', 'toc25', 9)
+	m = Meta('Call of the Crusade (25 player)', 'toc25', 3)
 	m.add_achievements(
 		('Call of the Crusade (25 player)', 3916, 'achievement_reputation_argentchampion'),
 		('Call of the Grand Crusade (25 player)', 3812, 'achievement_reputation_argentchampion'),
@@ -198,7 +198,7 @@ def get_data():
 	metas.append(m)	
 	
 	# 10 man Icecrown Citadel
-	m = Meta('Glory of the Icecrown Raider (10 player)', 'icc10', 10)
+	m = Meta('Glory of the Icecrown Raider (10 player)', 'icc10', 3)
 	m.add_achievements(
         ('Heroic: Storming the Citadel (10 player)', 4628, 'achievement_dungeon_icecrown_icecrownentrance'),
         ('Heroic: The Plagueworks (10 player)', 4629, 'achievement_dungeon_plaguewing'),
@@ -220,7 +220,7 @@ def get_data():
 	metas.append(m)
 	
 	# 25 man Icecrown Citadel
-	m = Meta('Glory of the Icecrown Raider (25 player)', 'icc25', 11)
+	m = Meta('Glory of the Icecrown Raider (25 player)', 'icc25', 3)
 	m.add_achievements(
         ('Heroic: Storming the Citadel (25 player)', 4632, 'achievement_dungeon_icecrown_icecrownentrance'),
         ('Heroic: The Plagueworks (25 player)', 4633, 'achievement_dungeon_plaguewing'),
@@ -239,6 +239,71 @@ def get_data():
         ('All You Can Eat (25 player)', 4620, 'achievement_boss_sindragosa'),
         ('Been Waiting a Long Time for This (25 player)', 4621, 'spell_deathknight_bloodplague'),
 		('Neck-Deep in Vile (25 player)', 4622, 'spell_shadow_devouringplague'),
+	)
+	metas.append(m)
+	
+	# Glory of the Cataclysm Hero
+	m = Meta('Glory of the Cataclysm Hero', 'gotch', 4)
+	m.add_achievements(
+		("Straw That Broke the Camel's Back", 5294, 'ability_mount_camel_tan'),
+		('I Hate That Song', 5293, 'spell_holy_divinehymn'),
+		('No Static at All', 5288, 'achievement_dungeon_thevortexpinnacle_asaad'),
+		("It's Frost Damage", 5369, 'spell_deathknight_pathoffrost'),
+		('Bullet Time', 5505, 'inv_misc_ammo_bullet_05'),
+		('Prince of Tides', 5286, 'achievement_dungeon_throneofthetides_ozumat'),
+		('Kill It With Fire!', 5290, 'inv_misc_firedancer_01'),
+		('Umbrage for Umbriss', 5297, 'achievement_dungeon_grimbatol_generalumbriss'),
+		('Ascendant Descending', 5284, 'achievement_dungeon_blackrockcaverns_ascendantlordobsidius'),
+		('Arrested Development', 5282, 'achievement_dungeon_blackrockcaverns_corlaheraldoftwilight'),
+		('Crushing Bones and Cracking Skulls', 5281, 'achievement_dungeon_blackrockcaverns_romoggbonecrusher'),
+		('Old Faithful', 5285, 'achievement_boss_ladyvashj'),
+		("I'm on a Diet", 5370, 'inv_misc_food_115_condorsoup'),
+		('Prototype Prodigy', 5368, 'inv_gizmo_goblingtonkcontroller'),
+		('Rat Pack', 5367, 'inv_misc_food_100_hardcheese'),
+		('Ready for Raiding', 5366, 'spell_fire_burnout'),
+		('Too Hot to Handle', 5283, 'achievement_dungeon_blackrockcaverns_karshsteelbender'),
+		('Extra Credit Bonus Stage', 5289, 'spell_frost_windwalkon'),
+		('Rotten to the Core', 5287, 'ability_warlock_moltencore'),
+		("Don't Need to Break Eggs to Make an Omelet", 5298, 'achievement_halloween_rottenegg_01'),
+		('Faster Than the Speed of Light', 5296, 'inv_misc_pocketwatch_01'),
+		('Sun of a....', 5295, 'achievement_dungeon_hallsoforigination_rajh'),
+		('Acrocalypse Now', 5291, 'ability_hunter_pet_crocolisk'),
+		('Headed South', 5292, 'ability_mage_netherwindpresence'),
+		('Vigorous VanCleef Vindicator', 5371, 'achievement_boss_edwinvancleef'),
+		('Pardon Denied', 5503, 'ability_rogue_stayofexecution'),
+		('To the Ground!', 5504, 'spell_holy_sealofblood'),
+	)
+	metas.append(m)
+	
+	# Glory of the Cataclysm Raider
+	m = Meta('Glory of the Cataclysm Raider', 'gotcr', 5)
+	m.add_achievements(
+		('Heroic: Magmaw', 5094, 'ability_hunter_pet_worm'),
+		('Heroic: Omnotron Defense System', 5107, 'achievement_dungeon_blackwingdescent_darkironcouncil'),
+		('Heroic: Maloriak', 5108, 'achievement_dungeon_blackwingdescent_raid_maloriak'),
+		('Heroic: Atramedes', 5109, 'achievement_dungeon_blackwingdescent_raid_atramedes'),
+		('Heroic: Chimaeron', 5115, 'achievement_dungeon_blackwingdescent_raid_chimaron'),
+		('Heroic: Nefarian', 5116, 'achievement_dungeon_blackwingdescent_raid_nefarian'),
+		('Heroic: Halfus Wyrmbreaker', 5118, 'achievement_dungeon_bastionoftwilight_halfuswyrmbreaker'),
+		('Heroic: Valiona and Theralion', 5117, 'achievement_dungeon_bastionoftwilight_valionatheralion'),
+		('Heroic: Ascendant Council', 5119, 'achievement_dungeon_bastionoftwilight_twilightascendantcouncil'),
+		("Heroic: Cho'gall", 5120, 'achievement_dungeon_bastionoftwilight_chogallboss'),
+		('Heroic: Sinestra', 5121, 'achievement_dungeon_bastionoftwilight_ladysinestra'),
+		('Heroic: Conclave of Wind', 5122, 'ability_druid_galewinds'),
+		("Heroic: Al'Akir", 5123, 'achievement_boss_murmur'),
+		('Parasite Evening', 5306, 'ability_hunter_pet_worm'),
+		('Achieve-a-tron', 5307, 'achievement_dungeon_blackwingdescent_darkironcouncil'),
+		('Silence is Golden', 5308, 'inv_misc_bell_01'),
+		('Full of Sound and Fury', 5309, 'warrior_talent_icon_furyintheblood'),
+		('Aberrant Behavior', 5310, 'ability_racial_aberration'),
+		('Keeping it in the Family', 4849, 'achievement_boss_onyxia'),
+		('The Only Escape', 5300, 'inv_misc_crop_01'),
+		('Double Dragon', 4852, 'achievement_dungeon_bastionoftwilight_valionatheralion'),
+		('Elementary', 5311, 'achievement_dungeon_bastionoftwilight_twilightascendantcouncil'),
+		('The Abyss Will Gaze Back Into You', 5312, 'spell_shadow_mindflay'),
+		("I Can't Hear You Over the Sound of How Awesome I Am", 5313, 'achievement_dungeon_bastionoftwilight_ladysinestra'),
+		('Stay Chill', 5304, 'spell_deathknight_frostfever'),
+		('Four Play', 5305, 'spell_shaman_staticshock')
 	)
 	metas.append(m)
 	
