@@ -8,6 +8,7 @@ import cPickle
 import logging
 import os
 import random
+import re
 import sys
 import time
 import urllib
@@ -25,17 +26,17 @@ except ImportError:
 # ---------------------------------------------------------------------------
 
 BASE_URL = 'http://%s.wowarmory.com/character-achievements.xml?r=%s&n=%s&c=168'
-GUILD_URL = 'http://%s.wowarmory.com/guild-info.xml?r=%s&gn=%s'
-#ICON_URL = 'http://%s.wowarmory.com/wow-icons/_images/51x51/%s.jpg'
-#LINK_URL = 'http://%s.wowarmory.com/character-sheet.xml?r=%s&n=%s'
+GUILD_URL = 'http://%s.battle.net/wow/en/guild/%s/%s/roster'
 ICON_URL = 'http://%s.battle.net/wow-assets/static/images/icons/56/%s.jpg'
 LINK_URL = 'http://%s.battle.net/wow/en/character/%s/%s/advanced'
 
-CHAR_LEVEL = '80'
 USER_AGENT = 'Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9.1.1) Gecko/20090715 Firefox/3.5.1'
 
 DEFAULT_EXPIRE = 8
 REGIONS = ('us', 'eu', 'tw', 'kr')
+
+CHAR_LEVEL = 85
+GUILD_MEMBER_RE = re.compile('data-level="(\d+)".*?<td class="name"><a href="/wow/en/character/dragonblight/.*?" class=".*?">(.*?)</a></td>', re.DOTALL)
 
 # ---------------------------------------------------------------------------
 
@@ -178,31 +179,38 @@ class Augh:
 		
 		start = time.time()
 		try:
-			xml = urllib2.urlopen(req).read()
+			data = urllib2.urlopen(req).read()
 		except urllib2.HTTPError, e:
 			self.logger.warning('FetchGuild() %r HTTP %s!' % (url, e.code))
 			return []
 		else:
 			self.logger.debug('FetchGuild() %r took %.2fs' % (url, time.time() - start))
-			root = ET.fromstring(xml)
 			
 			chars = []
-			for character in root.findall('guildInfo/guild/members/character'):
-				if character.get('level') == CHAR_LEVEL:
-					if self.options.maxrank > 0:
-						rank = int(character.get('rank'))
-						if rank > self.options.maxrank:
-							continue
-					
-					# Convert non-unicode strings (possibly containing upper ASCII) into
-					# latin-1 unicode strings
-					name = character.get('name')
-					if isinstance(name, str):
-						chars.append(unicode(name, 'latin-1'))
-					else:
-						chars.append(name)
+			for level, name in GUILD_MEMBER_RE.findall(data):
+				if int(level) == CHAR_LEVEL:
+					chars.append(unicode(name, 'utf-8'))
+			
+			#root = ET.fromstring(data)
+			#
+			#chars = []
+			#for character in root.findall('guildInfo/guild/members/character'):
+			#	if character.get('level') == CHAR_LEVEL:
+			#		if self.options.maxrank > 0:
+			#			rank = int(character.get('rank'))
+			#			if rank > self.options.maxrank:
+			#				continue
+			#		
+			#		# Convert non-unicode strings (possibly containing upper ASCII) into
+			#		# latin-1 unicode strings
+			#		name = character.get('name')
+			#		if isinstance(name, str):
+			#			chars.append(unicode(name, 'latin-1'))
+			#		else:
+			#			chars.append(name)
 			
 			chars.sort()
+			print chars
 			return chars
 	
 	# Fetch some XML comparison data from the Armory
