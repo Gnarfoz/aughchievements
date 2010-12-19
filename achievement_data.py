@@ -245,7 +245,6 @@ def get_data():
 	# Glory of the Cataclysm Hero
 	m = Meta('Glory of the Cataclysm Hero', 'gotch', 4)
 	m.add_achievements(
-('Halls of Origination', 4841, 'achievement_dungeon_hallsoforigination'),
 		('Crushing Bones and Cracking Skulls', 5281, 'achievement_dungeon_blackrockcaverns_romoggbonecrusher'),
 		('Arrested Development', 5282, 'achievement_dungeon_blackrockcaverns_corlaheraldoftwilight'),
 		('Too Hot to Handle', 5283, 'achievement_dungeon_blackrockcaverns_karshsteelbender'),
