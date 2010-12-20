@@ -48,11 +48,11 @@ class Augh:
 		
 		# Fuck Unicode
 		if isinstance(options.realm, str):
-			self.qrealm = self.ArmoryQuote(unicode(options.realm, 'latin-1'))
+			self.qrealm = self.ArmoryQuote(unicode(options.realm, 'utf-8'))
 		else:
 			self.qrealm = self.ArmoryQuote(options.realm)
 		if isinstance(options.guild, str):
-			self.qguild = self.ArmoryQuote(unicode(options.guild, 'latin-1'))
+			self.qguild = self.ArmoryQuote(unicode(options.guild, 'utf-8'))
 		else:
 			self.qguild = self.ArmoryQuote(options.guild)
 		
@@ -81,7 +81,7 @@ class Augh:
 	# -----------------------------------------------------------------------
 	# Get a path to a cache file
 	def CachePath(self, character):
-		char = character.encode('utf-8').lower()
+		char = character.lower()
 		filename = '%s_%s_%s.pickle' % (self.region, self.options.realm.lower(), char)
 		filepath = os.path.join('cache', filename)
 		return filepath
@@ -451,8 +451,8 @@ def main():
 	
 	parser.set_defaults(
 		verbose=0,
-		metas='icc25,toc25',
-		region='us',
+		metas='gotch,gotcr',
+		region='eu',
 		ignorecache=False,
 		noslackers=False,
 		expiretime=8,
