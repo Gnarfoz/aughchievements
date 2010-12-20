@@ -36,14 +36,14 @@ DEFAULT_EXPIRE = 8
 REGIONS = ('us', 'eu', 'tw', 'kr')
 
 CHAR_LEVEL = 85
-GUILD_MEMBER_RE = re.compile('data-level="(\d+)".*?<td class="name"><a href="/wow/en/character/dragonblight/.*?" class=".*?">(.*?)</a></td>', re.DOTALL)
+GUILD_MEMBER_RE = re.compile('data-level="(\d+)".*?<td class="name"><a href="/wow/.*?" class=".*?">(.*?)</a></td>', re.DOTALL)
 
 # ---------------------------------------------------------------------------
 
 class Augh:
 	def __init__(self, options):
 		self.options = options
-		self.qrealm = self.ArmoryQuote(options.realm)
+		self.qrealm = self.ArmoryQuote(unicode(options.realm, 'latin-1'))
 		self.region = options.region.lower()
 		
 		# Set up logging
@@ -174,7 +174,7 @@ class Augh:
 	
 	# Fetch the guild player list from the Armory
 	def FetchGuildPlayers(self):
-		url = GUILD_URL % (self.region, self.qrealm, self.ArmoryQuote(self.options.guild))
+		url = GUILD_URL % (self.region, self.qrealm, self.ArmoryQuote(unicode(self.options.guild, 'latin-1')))
 		req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
 		
 		start = time.time()
