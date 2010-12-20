@@ -43,8 +43,18 @@ GUILD_MEMBER_RE = re.compile('data-level="(\d+)".*?<td class="name"><a href="/wo
 class Augh:
 	def __init__(self, options):
 		self.options = options
-		self.qrealm = self.ArmoryQuote(unicode(options.realm, 'latin-1'))
+		
 		self.region = options.region.lower()
+		
+		# Fuck Unicode
+		if isinstance(options.realm, str):
+			self.qrealm = self.ArmoryQuote(unicode(options.realm, 'latin-1'))
+		else:
+			self.qrealm = self.ArmoryQuote(options.realm)
+		if isinstance(options.guild, str):
+			self.qguild = self.ArmoryQuote(unicode(options.guild, 'latin-1'))
+		else:
+			self.qguild = self.ArmoryQuote(options.guild)
 		
 		# Set up logging
 		self.logger = logging.getLogger('augh')
@@ -174,7 +184,7 @@ class Augh:
 	
 	# Fetch the guild player list from the Armory
 	def FetchGuildPlayers(self):
-		url = GUILD_URL % (self.region, self.qrealm, self.ArmoryQuote(unicode(self.options.guild, 'latin-1')))
+		url = GUILD_URL % (self.region, self.qrealm, self.qguild)
 		req = urllib2.Request(url, headers={ 'User-Agent': USER_AGENT })
 		
 		start = time.time()
