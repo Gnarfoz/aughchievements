@@ -13,9 +13,14 @@ img {
 	margin: auto;
 	border: none;
 }
-div.meta {
-	font-size: 16px;
+h1 h2 {
 	text-align: center;
+}
+h1 {
+	font-size: 18px;
+}
+h2 {
+	font-size: 16px;
 }
 th {
 	padding: 0px;
