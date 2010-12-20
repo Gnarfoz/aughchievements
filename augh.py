@@ -309,7 +309,7 @@ class Augh:
 		return False
 	
 	# -----------------------------------------------------------------------
-	# Dump some horrible HTML to our output file
+	# Dump HTML to our output file
 	def OutputHTML(self):
 		if self.options.filename:
 			outfile = open(self.options.filename, 'w')
@@ -337,6 +337,7 @@ class Augh:
 <script src="http://www.wowhead.com/widgets/power.js" type="text/javascript"></script>
 </head>
 <body>
+<div id="content">
 <h1>%s</h1>
 """ % (title, title))
 		
@@ -426,7 +427,8 @@ class Augh:
 		outfile.write('<div id="footer">Last updated: %s</div>\n' % (now))
 		
 		outfile.write(
-"""</body>
+"""</div>
+</body>
 </html>
 """)
 		
