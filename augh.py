@@ -327,15 +327,18 @@ class Augh:
 			title = 'Augh!chievements'
 		
 		outfile.write(
-"""<html>
+"""<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN"
+"http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 <title>%s</title>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<link href="files/augh.css" rel="stylesheet" type="text/css">
-<script src="http://www.wowhead.com/widgets/power.js"></script>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+<link href="files/augh.css" rel="stylesheet" type="text/css" />
+<script src="http://www.wowhead.com/widgets/power.js" type="text/javascript"></script>
 </head>
 <body>
-""" % (title))
+<h1>%s</h1>
+""" % (title, title))
 		
 		# Only output metas they were interested in
 		interested = self.options.metas.split(',')
@@ -351,9 +354,9 @@ class Augh:
 			
 			# Meta table head
 			outfile.write(
-"""<table>
+"""<h2>%s</h2>
+<table>
 <thead>
-<div class="meta">%s</div>
 <tr>
 <th></th>
 """ % (meta.name))
@@ -366,17 +369,19 @@ class Augh:
 				
 				if a_id == 0:
 					outfile.write(
-"""<th><img width=35 height=35 src="files/%s.jpg" title="%s"></th>
+"""<th><img width="35" height="35" src="files/%s.jpg" alt="" title="%s"></th>
 """ % (a_img, a_name))
 				
 				else:
 					outfile.write(
-"""<th><a href="http://www.wowhead.com/?achievement=%s"><img width=35 height=35 src="files/%s.jpg"></a></th>
+"""<th><a href="http://www.wowhead.com/?achievement=%s"><img width="35" height="35" src="files/%s.jpg" alt="" /></a></th>
 """ % (a_id, a_img))
 			
 			outfile.write(
 """<th></th>
 </tr>
+</thead>
+<tbody>
 """)
 			
 			# Player rows
@@ -397,9 +402,9 @@ class Augh:
 				
 				for p_ok in p_data[meta.name]:
 					if p_ok is False:
-						outfile.write('<td><img src="files/no.png"></td>')
+						outfile.write('<td><img src="files/no.png" alt="No" /></td>')
 					elif len(p_ok) == 10:
-						outfile.write('<td><img src="files/yes.png" title="%s"></td>' % (p_ok))
+						outfile.write('<td><img src="files/yes.png" alt="Yes" title="%s" /></td>' % (p_ok))
 					else:
 						outfile.write('<td class="meta">%s</td>' % (p_ok))
 				
@@ -411,14 +416,14 @@ class Augh:
 						img = 'yes'
 					else:
 						img = 'star'
-					outfile.write('<td class="star"><img src="files/%s.png" title="%s"></td>' % (img, meta_cutoff))
+					outfile.write('<td class="star"><img src="files/%s.png" alt="Complete" title="%s" /></td>' % (img, meta_cutoff))
 				
 				outfile.write('</tr>\n')
 			
-			outfile.write('</table>\n<br>\n')
+			outfile.write('</tbody></table>\n\n')
 		
 		now = time.strftime("%a, %d %b %Y %H:%M:%S +0000", time.gmtime())
-		outfile.write('Last updated: %s\n' % (now))
+		outfile.write('<div id="footer">Last updated: %s</div>\n' % (now))
 		
 		outfile.write(
 """</body>
