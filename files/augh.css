@@ -13,6 +13,9 @@ img {
 	margin: auto;
 	border: none;
 }
+#content {
+    text-align: center;
+}
 h1 h2 {
 	text-align: center;
 }
@@ -24,6 +27,11 @@ h2 {
 }
 th {
 	padding: 0px;
+}
+table {
+    margin-top: 0px;
+    margin-left: auto;
+    margin-right: auto;
 }
 tr.row0  {
 	background: #153E7E;
