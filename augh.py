@@ -379,7 +379,8 @@ class Augh:
 """ % (a_id, a_img))
 			
 			outfile.write(
-"""</tr>
+"""<th></th>
+</tr>
 </thead>
 <tbody>
 """)
