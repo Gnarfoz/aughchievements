@@ -68,7 +68,7 @@ class Augh:
 		elif options.verbose >= 2:
 			self.logger.setLevel(logging.DEBUG)
 		
-		self.expire_time = time.time() - (options.expiretime * 60 * 60)
+		self.expire_time = time.time() - (float(options.expiretime) * 60 * 60)
 		
 		self.data = {}
 		self.metas = achievement_data.get_data()
